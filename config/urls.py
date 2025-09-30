@@ -38,6 +38,7 @@ urlpatterns = [
         name="swagger",
     ),
     # app paths
+    path("users/", include("users.urls"), name="users"),
     path("resources/", include("resources.urls"), name="resources"),
     path("personnel/", include("personnel.urls"), name="personnel"),
     path("recruitment/", include("recruitment.urls"), name="recruitment"),
