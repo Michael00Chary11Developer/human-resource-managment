@@ -1,7 +1,9 @@
-from .utils import CreateUniqueCode
 from django.db import models
-from personnel.models import Personnel
+
 from core.models import BaseModelDate
+from personnel.models import Personnel
+
+from .utils import CreateUniqueCode
 
 """
 Represents a resource in the system with various attributes.
@@ -21,16 +23,20 @@ Methods:
 class Resources(BaseModelDate):
 
     number_of_personnel = models.OneToOneField(
-        Personnel, related_name='number_of_personnel_ex', on_delete=models.CASCADE, primary_key=True)
-    asset_code = models.CharField(
-        max_length=8, editable=False, blank=False)
+        Personnel,
+        related_name="number_of_personnel_ex",
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+    asset_code = models.CharField(max_length=8, editable=False, blank=False)
     resource_name = models.CharField(
-        max_length=20, blank=False, unique=False, editable=True)
+        max_length=20, blank=False, unique=False, editable=True
+    )
     resource_sort = models.CharField(max_length=20, blank=False, editable=True)
     dateـofـallocation = models.DateField()
 
     def __str__(self) -> str:
-        return f'{self.resource_name}\t{self.resource_sort}\t{self.dateـofـallocation}'
+        return f"{self.resource_name}\t{self.resource_sort}\t{self.dateـofـallocation}"
 
     def save(self, *args, **kwargs):
         """

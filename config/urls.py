@@ -14,30 +14,35 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from core.views import SwaggerViewBasicAuthentication, RedocViewBasicAuthentication
+
+from core.views import RedocViewBasicAuthentication, SwaggerViewBasicAuthentication
 
 urlpatterns = [
-
     # admin path
-    path('admin/', admin.site.urls),
-
+    path("admin/", admin.site.urls),
     # doc paths
-    path('api/schema/', SpectacularAPIView.as_view(), name="schema"),
-    path('api/redoc/', RedocViewBasicAuthentication.as_view(url_name="schema"), name="redoc"),
-    path('api/swagger/',
-         SwaggerViewBasicAuthentication.as_view(url_name='schema'), name="swagger"),
-
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/redoc/",
+        RedocViewBasicAuthentication.as_view(url_name="schema"),
+        name="redoc",
+    ),
+    path(
+        "api/swagger/",
+        SwaggerViewBasicAuthentication.as_view(url_name="schema"),
+        name="swagger",
+    ),
     # app paths
-    path('resources/', include('resources.urls'), name='resources'),
-    path('personnel/', include('personnel.urls'), name='personnel'),
-    path('recruitment/', include('recruitment.urls'), name='recruitment'),
-    path('salary/', include('salary.urls'), name='salary'),
-
+    path("resources/", include("resources.urls"), name="resources"),
+    path("personnel/", include("personnel.urls"), name="personnel"),
+    path("recruitment/", include("recruitment.urls"), name="recruitment"),
+    path("salary/", include("salary.urls"), name="salary"),
     # jwt paths
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

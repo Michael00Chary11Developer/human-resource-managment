@@ -1,8 +1,11 @@
-from rest_framework import serializers
-from .models import Recruitment
 from datetime import timedelta
+
 from django.utils import timezone
+from rest_framework import serializers
+
 from core.serializer import BaseCoreSerializer
+
+from .models import Recruitment
 
 """
 Serializer for the Recruitment model.
@@ -25,7 +28,7 @@ class RecruitmentSerializer(BaseCoreSerializer):
     for the 'recruiment_id' field
 
     Attributes:
-        user_id=readonly is primarykey of models of core and set on model recruiment 
+        user_id=readonly is primarykey of models of core and set on model recruiment
         time_spent (SerializerMethodField): Calculates and returns
                                             the total time spent on
                                             interviews.
@@ -42,12 +45,26 @@ class RecruitmentSerializer(BaseCoreSerializer):
             model (Model): Specifies the model to be serialized.
             fields (list): List of model fields to be included in the serialization.
         """
+
         model = Recruitment
-        fields = [BaseCoreSerializer.Meta.fields[0]] + ['recruiment_id', 'recieved_resume',
-                                                        'checked_resume', 'approved_resume', 'interviewed_resume',
-                                                        'duration_every_interview', 'time_spent', 'recruitment_possition',
-                                                        'recruiment_level_possition', 'recruitment_condition',
-                                                        'date_recruitment'] + [BaseCoreSerializer.Meta.fields[1]]+[BaseCoreSerializer.Meta.fields[2]]
+        fields = (
+            [BaseCoreSerializer.Meta.fields[0]]
+            + [
+                "recruitment_id",
+                "received_resume",
+                "checked_resume",
+                "approved_resume",
+                "interviewed_resume",
+                "duration_every_interview",
+                "time_spent",
+                "recruitment_position",
+                "recruitment_level_position",
+                "recruitment_condition",
+                "date_recruitment",
+            ]
+            + [BaseCoreSerializer.Meta.fields[1]]
+            + [BaseCoreSerializer.Meta.fields[2]]
+        )
 
     def get_time_spent(self, obj: Recruitment) -> timedelta:
         """
@@ -89,37 +106,43 @@ class RecruitmentSerializer(BaseCoreSerializer):
             serializers.ValidationError: If any of the date conditions
                                           are not met.
         """
-        recived_resume = data.get('recieved_resume')
+        received_resume = data.get("received_resume")
         checked_resume = data.get("checked_resume")
-        approved_resume = data.get('approved_resume')
-        interviewed_resume = data.get('interviewed_resume')
-        recruitment_condition = data.get('recruitment_condition')
-        date_recruiment = data.get('date_recruitment')
+        approved_resume = data.get("approved_resume")
+        interviewed_resume = data.get("interviewed_resume")
+        recruitment_condition = data.get("recruitment_condition")
+        date_recruitment = data.get("date_recruitment")
         now = timezone.now().date()
 
-        if recived_resume < checked_resume:
+        if received_resume < checked_resume:
             raise serializers.ValidationError(
-                'Checked resume date cannot be bigger than received resume date')
+                "Checked resume number cannot be bigger than received resume number"
+            )
 
         if checked_resume < approved_resume:
             raise serializers.ValidationError(
-                'Approved resume date cannot be bigger than received checked_resume')
+                "Approved resume number cannot be bigger than checked resume number"
+            )
 
         if approved_resume < interviewed_resume:
             raise serializers.ValidationError(
-                'interviewed resume date cannot be bigger than received approved_resume')
+                "Interviewed resume number cannot be bigger than approved resume number"
+            )
 
         if recruitment_condition not in ["Accept", "accept"]:
-            if date_recruiment is not None:
+            if date_recruitment is not None:
                 raise serializers.ValidationError(
-                    'No conditions other than being accepted can have an employment date. Please leave it blank')
-        elif date_recruiment is None:
+                    "No conditions other than being accepted can have an employment date. Please leave it blank"
+                )
+        elif date_recruitment is None:
             raise serializers.ValidationError(
-                'condition of Accept or accept must have date_recruiment')
-        elif date_recruiment is not None:
-            if date_recruiment > now:
+                "condition of Accept or accept must have date_recruitment"
+            )
+        elif date_recruitment is not None:
+            if date_recruitment > now:
                 raise serializers.ValidationError(
-                    "data_recruiment can be in future but not more than one year!")
+                    "date_recruitment can be in future but not more than one year!"
+                )
 
         return data
 
@@ -141,9 +164,15 @@ class RecruitmentDetailSerializer(serializers.ModelSerializer):
             model (Model): Specifies the model to be serialized.
             fields (list): List of model fields to be included in the serialization.
         """
+
         model = Recruitment
-        fields = ['duration_every_interview', 'recruitment_possition', 'recruitment_condition', 'date_recruitment',
-                  'time_spent']
+        fields = [
+            "duration_every_interview",
+            "recruitment_position",
+            "recruitment_condition",
+            "date_recruitment",
+            "time_spent",
+        ]
 
     def get_time_spent(self, obj: Recruitment) -> timedelta:
         """

@@ -1,8 +1,0 @@
-ERRORS:
-recruitment.RecruimentConditionDetails.recruiment_condition: (fields.E005) 'choices' must be a mapping of actual values to human readable names or an iterable containing (actual value, human readable name) tuples.
-recruitment.RecruimentConditionDetails.recruiment_position: (fields.E005) 'choices' must be a mapping of actual values to human readable names or an iterable containing (actual value, human readable name) tuples.
-
-urls:http://127.0.0.1:8000/salary/manage/
-urls:http://127.0.0.1:8000/recruitment/manage
-urls:http://127.0.0.1:8000/personnel/manage/
-urls:http://127.0.0.1:8000/resources/manage/

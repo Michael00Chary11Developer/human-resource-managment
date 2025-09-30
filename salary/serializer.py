@@ -1,27 +1,29 @@
-from rest_framework import serializers
-from .models import Salary
-from personnel.models import Personnel
-from .utils import calculate_gross_salary, calculate_net_salary
 from decimal import Decimal
+
+from django.utils import timezone
+from rest_framework import serializers
+
 from core.serializer import BaseCoreSerializer
 from core.utils import CleanData
-from django.utils import timezone
+from personnel.models import Personnel
+
+from .models import Salary
+from .utils import calculate_gross_salary, calculate_net_salary
 
 
-class PersonnelSerializer(serializers.ModelSerializer):
-
+class PersonnelBasicSerializer(serializers.ModelSerializer):
     """
-    Serializer for the Personnel model.
+    Basic serializer for the Personnel model.
 
     This serializer converts the Personnel model fields into JSON format.
     """
+
     class Meta:
         model = Personnel
-        fields = ['number_of_personnel', 'firstname', 'lastname']
+        fields = ["number_of_personnel", "firstname", "lastname"]
 
 
 class SalarySerializer(BaseCoreSerializer):
-
     """
     Serializer for the Salary model.
 
@@ -30,12 +32,13 @@ class SalarySerializer(BaseCoreSerializer):
     """
 
     personnel = serializers.PrimaryKeyRelatedField(
-        queryset=Personnel.objects.all(), write_only=True)
+        queryset=Personnel.objects.all(), write_only=True
+    )
 
     """
     The personnel associated with the salary. This field is write-only.
     """
-    personnel_detail = PersonnelSerializer(source='personnel', read_only=True)
+    personnel_detail = PersonnelBasicSerializer(source="personnel", read_only=True)
 
     """
     Detailed information about the personnel. This field is read-only.
@@ -53,25 +56,26 @@ class SalarySerializer(BaseCoreSerializer):
     """
 
     date_of_employment = serializers.DateField(
-        source='personnel.date_of_employment', read_only=True)
+        source="personnel.date_of_employment", read_only=True
+    )
 
     class Meta:
 
         model = Salary
         fields = [
-            'user_id',
-            'personnel',
-            'personnel_detail',
-            'base_salary',
-            'housing_allowance',
-            'child_allowance',
-            'groceries_allowance',
-            'date_of_employment',
-            'salary_start_date',
-            'gross_salary',
+            "user_id",
+            "personnel",
+            "personnel_detail",
+            "base_salary",
+            "housing_allowance",
+            "child_allowance",
+            "groceries_allowance",
+            "date_of_employment",
+            "salary_start_date",
+            "gross_salary",
             "net_salary",
-            'created_at',
-            'update_at'
+            "created_at",
+            "update_at",
         ]
 
         read_only_fields = BaseCoreSerializer.Meta.read_only_fields
@@ -93,7 +97,7 @@ class SalarySerializer(BaseCoreSerializer):
             obj.child_allowance,
             obj.groceries_allowance,
             obj.personnel.number_of_child,
-            CleanData(obj.personnel.marital_status).created_clean()
+            CleanData(obj.personnel.marital_status).created_clean(),
         )
 
     def get_net_salary(self, obj: Salary) -> Decimal:
@@ -113,40 +117,54 @@ class SalarySerializer(BaseCoreSerializer):
         based on their marital status and number of children. It also ensures that
         there is no existing salary record for the same personnel.
         """
-        personnel: Personnel = data.get('personnel')
-        child_allowance = data.get('child_allowance')
-        salary_start_date = data.get('salary_start_date')
-        base_salary = data.get('base_salary')
-        housing_allowance = data.get('housing_allowance')
-        groceries_allowance = data.get('groceries_allowance')
+        personnel: Personnel = data.get("personnel")
+        child_allowance = data.get("child_allowance")
+        salary_start_date = data.get("salary_start_date")
+        base_salary = data.get("base_salary")
+        housing_allowance = data.get("housing_allowance")
+        groceries_allowance = data.get("groceries_allowance")
 
-        if personnel.marital_status != 'married' or personnel.marital_status == 'married' and personnel.number_of_child in [0, None]:
+        if (
+            personnel.marital_status != "married"
+            or personnel.marital_status == "married"
+            and personnel.number_of_child in [0, None]
+        ):
             if child_allowance not in [0, None]:
                 raise serializers.ValidationError(
-                    "Personnel with no children or single or another marital except married cannot have a child allowance.")
-        elif personnel.marital_status == 'married' and personnel.number_of_child not in [0, None]:
+                    "Personnel with no children or single or another marital except married cannot have a child allowance."
+                )
+        elif (
+            personnel.marital_status == "married"
+            and personnel.number_of_child not in [0, None]
+        ):
             raise serializers.ValidationError(
-                "The Person Who have child must have child_allowance")
+                "The Person Who have child must have child_allowance"
+            )
 
         if child_allowance is not None and child_allowance > base_salary:
             raise serializers.ValidationError(
-                "child_allowance cannot be more base_salary")
+                "child_allowance cannot be more base_salary"
+            )
 
         if housing_allowance > base_salary:
             raise serializers.ValidationError(
-                "housing_allowance cannot be more base_salary")
+                "housing_allowance cannot be more base_salary"
+            )
 
         if groceries_allowance > housing_allowance:
             raise serializers.ValidationError(
-                "groceries_allowance cannot be more housing_allowance")
+                "groceries_allowance cannot be more housing_allowance"
+            )
 
         if salary_start_date < personnel.date_of_employment:
             raise serializers.ValidationError(
-                "The date_of_employment cannot being ahead of salary_start_date")
+                "The date_of_employment cannot being ahead of salary_start_date"
+            )
 
         if salary_start_date > timezone.now().date():
             raise serializers.ValidationError(
-                "The salary_start_date cannot be in the future.")
+                "The salary_start_date cannot be in the future."
+            )
 
         if self.instance:
             if self.instance.personnel == personnel:
@@ -154,6 +172,7 @@ class SalarySerializer(BaseCoreSerializer):
 
         if Salary.objects.filter(personnel=personnel).exists():
             raise serializers.ValidationError(
-                f'A salary record for personnel {personnel} already exists.')
+                f"A salary record for personnel {personnel} already exists."
+            )
 
         return data

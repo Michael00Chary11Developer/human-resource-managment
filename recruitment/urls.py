@@ -1,6 +1,7 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import RecruitmentViews, RecruitmentDetailViews
+
+from .views import RecruitmentDetailViews, RecruitmentViews
 
 """
 URL Configuration for Recruitment API.
@@ -18,19 +19,20 @@ Endpoints:
 
 # Initialize the router and register the viewset
 router = DefaultRouter()
-router.register("manage", RecruitmentViews, basename='RecruitmentRouter')
+router.register("manage", RecruitmentViews, basename="RecruitmentRouter")
 
 # Define urlpatterns
 urlpatterns = [
-
     # Include the automatically created router URLs
-    path('', include(router.urls)),
-
+    path("", include(router.urls)),
     # Custom path to filter by recruitment condition
-    path('condition/<str:recruitment_condition>/',
-         RecruitmentDetailViews.as_view({"get": "list"})),
-
+    path(
+        "condition/<str:recruitment_condition>/",
+        RecruitmentDetailViews.as_view({"get": "list"}),
+    ),
     # Custom path to filter by recruitment position
-    path('possition/<str:recruitment_possition>/',
-         RecruitmentViews.as_view({"get": "list"})),
+    path(
+        "position/<str:recruitment_position>/",
+        RecruitmentViews.as_view({"get": "list"}),
+    ),
 ]
