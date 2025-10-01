@@ -19,6 +19,7 @@ A comprehensive Django REST API for managing human resources, including personne
 - **Documentation**: DRF Spectacular (Swagger/OpenAPI)
 - **Containerization**: Docker & Docker Compose
 - **Code Quality**: Pre-commit hooks (Black, isort, flake8, autoflake)
+- **Pagination**: Custom pagination with configurable page sizes
 
 ## Quick Start
 
@@ -65,6 +66,24 @@ A comprehensive Django REST API for managing human resources, including personne
 - `/recruitment/` - Recruitment process
 - `/salary/` - Salary management
 - `/resources/` - Resource allocation
+
+### Pagination
+
+The API uses custom pagination with the following features:
+- **Default page size**: 20 items per page
+- **Configurable**: Use `?page_size=N` to change page size
+- **Maximum limit**: 10,000 items per page
+- **Example**: `GET /personnel/?page=2&page_size=50`
+
+#### Pagination Response Format:
+```json
+{
+    "count": 150,
+    "next": "http://localhost:8000/personnel/?page=3",
+    "previous": "http://localhost:8000/personnel/?page=1",
+    "results": [...]
+}
+```
 
 ### Environment Variables
 

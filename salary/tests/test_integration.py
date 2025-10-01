@@ -412,6 +412,5 @@ class SalaryIntegrationTest(APITestCase):
         url = reverse("salary-detail", kwargs={"pk": salary_id})
         response = self.client.get(url)
 
-        # This depends on your permission setup - adjust based on your requirements
-        # For now, assuming salary is accessible by any authenticated user
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # With user filtering, should get 404 since salary belongs to different user
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

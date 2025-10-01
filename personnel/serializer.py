@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from core.serializer import BaseCoreSerializer
 from core.utils import CleanData
+from users.models import User
 
 from .models import Personnel
 
@@ -15,6 +16,10 @@ class PersonnelSerializer(BaseCoreSerializer):
     and JSON representations, allowing for easy input and output of personnel
     data through API endpoints.
     """
+
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True
+    )
 
     class Meta:
         model = Personnel

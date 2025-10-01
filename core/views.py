@@ -31,10 +31,18 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
+        Filter queryset by current user to ensure data isolation.
         Optimize queryset with select_related and prefetch_related
         to reduce database queries.
         """
         query_set = super().get_queryset()
+
+        # Filter by current user to ensure data isolation
+        if self.request.user.is_authenticated:
+            query_set = query_set.filter(user_id=self.request.user)
+        else:
+            # If not authenticated, return empty queryset
+            query_set = query_set.none()
 
         limit = self.request.query_params.get("limit")
         offset = self.request.query_params.get("offset")

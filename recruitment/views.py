@@ -30,25 +30,26 @@ class RecruitmentViews(BaseModelViewSet):
     - Uses 'RecruitmentSerializer' to serialize the Recruitment model.
     """
 
-    queryset = (
-        Recruitment.objects.select_related("user_id").order_by("date_recruitment").all()
+    queryset = Recruitment.objects.select_related("user_id").order_by(
+        "date_recruitment"
     )
     serializer_class = RecruitmentSerializer
 
     def get_queryset(self):
         """
-        Overrides the default 'get_queryset' method to filter by 'recruitment_position' if provided.
+        Filter recruitment records by current user and optionally by 'recruitment_position'.
         """
+        # Get base queryset filtered by user
+        queryset = super().get_queryset()
+
         recruitment_position = self.kwargs.get("recruitment_position")
         if recruitment_position:
-            queryset = Recruitment.objects.filter(
-                recruitment_position=recruitment_position
-            )
+            queryset = queryset.filter(recruitment_position=recruitment_position)
             if not queryset.exists():
                 raise NotFound("Not found recruitment_position!!!")
             return queryset
 
-        return super().get_queryset()
+        return queryset
 
 
 class RecruitmentDetailViews(ModelViewSet):
@@ -67,15 +68,16 @@ class RecruitmentDetailViews(ModelViewSet):
 
     def get_queryset(self):
         """
-        Overrides the default 'get_queryset' method to filter by 'recruitment_condition' if provided.
+        Filter recruitment records by current user and optionally by 'recruitment_condition'.
         """
+        # Filter by current user first
+        queryset = Recruitment.objects.filter(user_id=self.request.user)
+
         recruitment_condition = self.kwargs.get("recruitment_condition")
         if recruitment_condition:
-            queryset = Recruitment.objects.filter(
-                recruitment_condition=recruitment_condition
-            )
+            queryset = queryset.filter(recruitment_condition=recruitment_condition)
             if not queryset.exists():
                 raise NotFound("Not Found recruitment_condition!!!")
             return queryset
 
-        return super().get_queryset()
+        return queryset

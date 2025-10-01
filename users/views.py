@@ -124,12 +124,12 @@ class UserListView(generics.ListAPIView):
     List all users (HR managers only).
     """
 
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by("id")
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Only HR managers can see all users
         if not self.request.user.is_hr_manager:
-            return User.objects.filter(id=self.request.user.id)
-        return User.objects.all()
+            return User.objects.filter(id=self.request.user.id).order_by("id")
+        return User.objects.all().order_by("id")

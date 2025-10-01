@@ -12,14 +12,13 @@ class SalaryViewSet(BaseModelViewSet):
     and delete Salary records for personnel.
     """
 
-    queryset = Salary.objects.select_related("personnel", "user_id").all()
-
-    """
-    The queryset that this view will operate on.
-    It retrieves all Salary records from the database.
-    """
+    queryset = Salary.objects.select_related("personnel", "user_id").order_by(
+        "created_at"
+    )
     serializer_class = SalarySerializer
 
-    """
-    The serializer class used to serialize and deserialize Salary data.
-    """
+    def get_queryset(self):
+        """
+        Filter salary records by current user to ensure data isolation.
+        """
+        return super().get_queryset()
