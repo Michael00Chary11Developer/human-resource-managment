@@ -5,13 +5,15 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 
 class BaseModelViewSet(viewsets.ModelViewSet):
     """
     Base viewset to handle user_id assignment on create.
     """
+
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         """

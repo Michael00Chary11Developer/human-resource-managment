@@ -6,6 +6,7 @@ from rest_framework import serializers
 from core.serializer import BaseCoreSerializer
 from core.utils import CleanData
 from personnel.models import Personnel
+from users.models import User
 
 from .models import Salary
 from .utils import calculate_gross_salary, calculate_net_salary
@@ -39,6 +40,10 @@ class SalarySerializer(BaseCoreSerializer):
     The personnel associated with the salary. This field is write-only.
     """
     personnel_detail = PersonnelBasicSerializer(source="personnel", read_only=True)
+
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True
+    )
 
     """
     Detailed information about the personnel. This field is read-only.
@@ -137,9 +142,10 @@ class SalarySerializer(BaseCoreSerializer):
             personnel.marital_status == "married"
             and personnel.number_of_child not in [0, None]
         ):
-            raise serializers.ValidationError(
-                "The Person Who have child must have child_allowance"
-            )
+            if child_allowance is None or child_allowance == 0:
+                raise serializers.ValidationError(
+                    "The Person Who have child must have child_allowance"
+                )
 
         if child_allowance is not None and child_allowance > base_salary:
             raise serializers.ValidationError(
