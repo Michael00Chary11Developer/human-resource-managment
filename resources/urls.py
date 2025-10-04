@@ -1,6 +1,7 @@
-from django.urls import path, include
-from .views import ResourceView
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
+from .views import ResourceView
 
 """
 URL Configuration for Resource Management.
@@ -15,13 +16,11 @@ Optional URL Patterns:
 
 # Create a router instance
 router = DefaultRouter()
-router.register('manage', ResourceView)
+router.register("manage", ResourceView)
 
 # Define URL patterns
 urlpatterns = [
-    path('', include(router.urls)),
-    path("asset-code/<int:asset_code>/",
-         ResourceView.as_view({"get": "list"})),
-    path('resource-name/<str:resource_name>/',
-         ResourceView.as_view({"get": "list"}))
+    path("", include(router.urls)),
+    path("asset-code/<int:asset_code>/", ResourceView.as_view({"get": "list"})),
+    path("resource-name/<str:resource_name>/", ResourceView.as_view({"get": "list"})),
 ]

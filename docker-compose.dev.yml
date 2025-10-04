@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=human_resource_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  web:
+    build: .
+    command: ["./entrypoint.sh"]
+    volumes:
+      - .:/code
+      - ./logs:/code/logs
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=django-insecure-dev-key
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=human_resource_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

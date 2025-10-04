@@ -1,9 +1,9 @@
-from django.shortcuts import render
+from rest_framework.exceptions import NotFound
+
+from core.views import BaseModelViewSet
+
 from .models import Resources
 from .serializers import ResourceSerializer
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.exceptions import NotFound
-from core.views import BaseModelViewSet
 
 """
 ResourceView handles CRUD operations and filtering of resource data.
@@ -29,26 +29,26 @@ class ResourceView(BaseModelViewSet):
 
     def get_queryset(self):
         """
-        Overrides the default 'get_queryset' method to filter resources by 'asset_code' or 'resource_name'.
+        Filter resources by current user and optionally by 'asset_code' or 'resource_name'.
 
         Raises:
             NotFound: If the provided 'asset_code' or 'resource_name' does not exist in the database.
         """
+        # Get base queryset filtered by user
+        queryset = super().get_queryset()
+
         asset_code = self.kwargs.get("asset_code")
         if asset_code:
-            queryset = Resources.objects.filter(
-                asset_code=asset_code)
+            queryset = queryset.filter(asset_code=asset_code)
             if not queryset.exists():
                 raise NotFound("Not Found!!")
             return queryset
 
         resource_name = self.kwargs.get("resource_name")
         if resource_name:
-            queryset = Resources.objects.filter(
-                resource_name=resource_name
-            )
+            queryset = queryset.filter(resource_name=resource_name)
             if not queryset.exists():
                 raise NotFound(f"{resource_name} is not found!")
             return queryset
 
-        return super().get_queryset()
+        return queryset

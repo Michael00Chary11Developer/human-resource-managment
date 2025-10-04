@@ -1,13 +1,13 @@
-from django.urls import path, include
-from . import views
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
+from . import views
 
 router = DefaultRouter()
-router.register('manage', views.SalaryViewSet, basename='salary')
+router.register("manage", views.SalaryViewSet, basename="salary")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]
 
 """

@@ -1,9 +1,9 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 
 """
 class:
-    BaseModelDate abstract Model,  
+    BaseModelDate abstract Model,
 """
 
 
@@ -12,14 +12,16 @@ class BaseModelDate(models.Model):
     user id is id if one superuser that is 1
     handle date for vreate and update automatically
     """
-    user_id = models.ForeignKey(User, on_delete=models.PROTECT)
+
+    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     update_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     """
     Meta:
-        show that this class is abstract 
+        show that this class is abstract
         and not migrate in database
     """
+
     class Meta:
         abstract = True

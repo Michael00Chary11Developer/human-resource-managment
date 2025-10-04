@@ -1,3 +1,27 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-# Create your models here.
+
+class User(AbstractUser):
+    """
+    Custom User model extending Django's AbstractUser.
+    """
+
+    email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True, null=True)
+    position = models.CharField(max_length=100, blank=True, null=True)
+    is_hr_manager = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
+
+    class Meta:
+        db_table = "users_user"
+        verbose_name = "User"
+        verbose_name_plural = "Users"
+
+    def __str__(self):
+        return f"{self.email} - {self.get_full_name() or self.username}"

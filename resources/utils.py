@@ -1,37 +1,50 @@
+import logging
 from random import randint
+
 from django.db import models
 
-"""
-class:CreateUnique code:have function generate uniq code:
-    method:generate_unique_code
-        genrate code by random
-        randint method that select number beetween 1 to 100
-    fields of method:
-        random_number(int) get random number if randint that select beetween 1 to 100
-        create_number(str) 20000+random number 
-        if number not have 3 digit 
-        generate zero 
-    example:
-        random_number(int)=12
-        create_number(str)=20000_012
-"""
+logger = logging.getLogger(__name__)
 
 
 class CreateUniqueCode:
+    """
+    Utility class for generating unique asset codes.
 
-    def generate_unique_code(self: models.Model):
+    This class provides methods to generate unique codes for resources
+    with proper error handling and logging.
+    """
+
+    @staticmethod
+    def generate_unique_code(model_class: models.Model, max_attempts: int = 1000):
+        """
+        Generate a unique asset code for the given model.
+
+        Args:
+            model_class: The Django model class to generate code for
+            max_attempts: Maximum number of attempts to generate unique code
+
+        Returns:
+            str: A unique asset code
+
+        Raises:
+            Exception: If unable to generate unique code after max_attempts
+        """
         try:
-            while True:
-                random_number = randint(1, 100)
-                create_number = f'20000{random_number:03d}'
-                """
-                The condition checks this number exists or not, and if it does, it returns a new number it can be stackoverflow 
-                if all number exist => cannot genrate new code so The loop runs endlessly
-                solution: create bigger number or put it in try except 
-                if error occurer
-                """
-                if not self.objects.filter(asset_code=create_number).exists():
+            for attempt in range(max_attempts):
+                random_number = randint(1, 999)
+                create_number = f"20000{random_number:03d}"
+
+                if not model_class.objects.filter(asset_code=create_number).exists():
+                    logger.info(f"Generated unique code: {create_number}")
                     return create_number
-        except:
+
+            logger.error(
+                f"Failed to generate unique code after {max_attempts} attempts"
+            )
             raise Exception(
-                "Sorry", "All number has been generate!! for solution call to programmer!")
+                "Unable to generate unique code. Please contact administrator."
+            )
+
+        except Exception as e:
+            logger.error(f"Error generating unique code: {e}")
+            raise Exception("Error generating unique code. Please try again.")

@@ -1,8 +1,10 @@
-from .models import Resources
-from rest_framework import serializers
-from personnel.models import Personnel
 from django.utils import timezone
+from rest_framework import serializers
+
 from core.serializer import BaseCoreSerializer
+from personnel.models import Personnel
+
+from .models import Resources
 
 """
 serializr class that serialize mean convert json to python object python object to json
@@ -14,7 +16,7 @@ serializr class that serialize mean convert json to python object python object 
                 -resource_sort (str): The category or type of the resource. This field is optional.
                 -date_of_allocation (date): The date when the resource was allocated. This field is required.
     models:
-        Resource and say which model must be serialize         
+        Resource and say which model must be serialize
 """
 
 
@@ -30,9 +32,7 @@ class PersonnelDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Personnel
-        fields = ['number_of_personnel',
-                  'firstname',
-                  'lastname']
+        fields = ["number_of_personnel", "firstname", "lastname"]
 
 
 class ResourceSerializer(BaseCoreSerializer):
@@ -46,30 +46,40 @@ class ResourceSerializer(BaseCoreSerializer):
     """
 
     date_of_employment = serializers.DateField(
-        source='number_of_personnel.date_of_employment', read_only=True)
+        source="number_of_personnel.date_of_employment", read_only=True
+    )
 
     number_of_personnel = serializers.PrimaryKeyRelatedField(
-        queryset=Personnel.objects.all(), write_only=True)
+        queryset=Personnel.objects.all(), write_only=True
+    )
 
     personnel_detail = PersonnelDetailSerializer(
-        source="number_of_personnel", read_only=True)
+        source="number_of_personnel", read_only=True
+    )
 
     class Meta:
         model = Resources
-        fields = [BaseCoreSerializer.Meta.fields[0]]+['number_of_personnel',
-                                                      'personnel_detail',
-                                                      'asset_code',
-                                                      'resource_name',
-                                                      'resource_sort',
-                                                      'date_of_employment',
-                                                      'dateـofـallocation'] + [BaseCoreSerializer.Meta.fields[1]]+[BaseCoreSerializer.Meta.fields[2]]
+        fields = (
+            [BaseCoreSerializer.Meta.fields[0]]
+            + [
+                "number_of_personnel",
+                "personnel_detail",
+                "asset_code",
+                "resource_name",
+                "resource_sort",
+                "date_of_employment",
+                "dateـofـallocation",
+            ]
+            + [BaseCoreSerializer.Meta.fields[1]]
+            + [BaseCoreSerializer.Meta.fields[2]]
+        )
         read_only_fields = BaseCoreSerializer.Meta.read_only_fields
 
     def validate(self, data):
         """
         Custom validation for resource allocation data.
 
-        Checks that the date of allocation is not ahead of the personnel's date of employment 
+        Checks that the date of allocation is not ahead of the personnel's date of employment
         and that it is not set in the future.
 
 
@@ -87,7 +97,7 @@ class ResourceSerializer(BaseCoreSerializer):
             )
         if date_time_allocation > today:
             raise serializers.ValidationError(
-                'The date of allocation cannot being ahead of today!'
+                "The date of allocation cannot being ahead of today!"
             )
 
         if self.instance:
@@ -95,6 +105,8 @@ class ResourceSerializer(BaseCoreSerializer):
                 return data
 
         if Resources.objects.filter(number_of_personnel=number_of_personnel).exists():
-            raise serializers.ValidationError(f'A resource record for personnel {number_of_personnel} already exists.')
+            raise serializers.ValidationError(
+                f"A resource record for personnel {number_of_personnel} already exists."
+            )
 
         return data
